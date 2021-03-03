@@ -1,5 +1,6 @@
 import socket
 import sys
+import threading
 
 
 class Scanner:
@@ -7,18 +8,28 @@ class Scanner:
                  min_port=1, max_port=1000):
         self.target = target
         self.min_port = min_port
-        self.max_port = max_port
+        self.max_port = max_port + 1
 
-    def scan(self):
-        open_ports = []
-        for port in range(self.min_port, self.max_port + 1):
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                res = s.connect_ex((self.target, port))
-            if res == 0:
-                open_ports.append(PortInfo(port, 'tcp', 'UP'))
-            else:
-                open_ports.append(PortInfo(port, 'tcp', 'DOWN'))
-        return open_ports
+        self.scan_result = []
+
+    def run(self):
+        threads = []
+        for port in range(self.min_port, self.max_port):
+            thread = threading.Thread(target=self.scan, args=(port,))
+            thread.start()
+            threads.append(thread)
+        while True:
+            if len(self.scan_result) == (self.max_port - self.min_port):
+                print('scan completed')
+                return self.scan_result
+
+    def scan(self, port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            res = s.connect_ex((self.target, port))
+        if res == 0:
+            self.scan_result.append(PortInfo(port, 'TCP', 'UP'))
+        else:
+            self.scan_result.append(PortInfo(port, 'TCP', 'DOWN'))
 
 
 class PortInfo:
@@ -30,6 +41,8 @@ class PortInfo:
 
 if __name__ == '__main__':
     s = Scanner(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
-    res = s.scan()
+    print(f'Port scan for {sys.argv[1]} had started.')
+    res = s.run()
+    res.sort(key=lambda x: x.port_no)
     for port_info in res:
         print(f'{port_info.protocol}/{port_info.port_no} is {port_info.state}')
