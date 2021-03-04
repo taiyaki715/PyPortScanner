@@ -83,6 +83,8 @@ if __name__ == '__main__':
     args = parse_arguments()
     if args.udp:
         scan_mode = 'u'
+        print('UDP scan is not available now.')
+        sys.exit()
     else:
         scan_mode = 't'
 
