@@ -5,17 +5,24 @@ import threading
 
 
 class Scanner:
-    def __init__(self, target, min_port, max_port):
+    def __init__(self, target, min_port, max_port, scan_mode='t'):
         self.target = target
         self.min_port = min_port
         self.max_port = max_port + 1
 
+        self.scan_mode = scan_mode
+
         self.scan_result = []
 
     def run(self):
+        if self.scan_mode == 't':
+            target = self.tcp_scan
+        elif self.scan_mode == 'u':
+            target = self.udp_scan
+
         threads = []
         for port in range(self.min_port, self.max_port):
-            thread = threading.Thread(target=self.tcp_scan, args=(port,))
+            thread = threading.Thread(target=target, args=(port,))
             thread.start()
             threads.append(thread)
         while True:
@@ -51,12 +58,14 @@ def parse_arguments():
     parser.add_argument('target')
     parser.add_argument('-s', '--start', type=int, default=1)
     parser.add_argument('-e', '--end', type=int, default=1000)
+    parser.add_argument('-t', '--tcp', action='store_true')
     parser.add_argument('-u', '--udp', action='store_true')
+    parser.add_argument('-l', '--less', action='store_true')
     args = parser.parse_args()
     return args
 
 
-def show_result(result):
+def show_result(result, quiet_mode=False):
     print('| PROTOCOL | PORT | STATUS |')
     print('----------------------------')
     result.sort(key=lambda x: x.port_no)
@@ -66,12 +75,18 @@ def show_result(result):
         else:
             color = '\033[31m'
 
-        print('|{:^10s}|{:^6d}|{:^17s}|'.format(port.protocol, port.port_no, color + port.state + '\033[0m'))
+        if not (quiet_mode is True) or (port.state == 'UP'):
+            print('|{:^10s}|{:^6d}|{:^17s}|'.format(port.protocol, port.port_no, color + port.state + '\033[0m'))
 
 
 if __name__ == '__main__':
     args = parse_arguments()
-    s = Scanner(args.target, args.start, args.end)
+    if args.udp:
+        scan_mode = 'u'
+    else:
+        scan_mode = 't'
+
+    s = Scanner(args.target, args.start, args.end, scan_mode)
     print(f'Port scan for {args.target} had started.')
     res = s.run()
-    show_result(res)
+    show_result(res, args.less)
