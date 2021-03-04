@@ -38,13 +38,21 @@ class PortInfo:
         self.state = state
 
 
+def show_result(result):
+    print('| PROTOCOL | PORT | STATUS |')
+    print('----------------------------')
+    result.sort(key=lambda x: x.port_no)
+    for port in result:
+        if port.state == 'UP':
+            color = '\033[32m'
+        else:
+            color = '\033[31m'
+
+        print('|{:^10s}|{:^6d}|{:^17s}|'.format(port.protocol, port.port_no, color + port.state + '\033[0m'))
+
+
 if __name__ == '__main__':
     s = Scanner(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
     print(f'Port scan for {sys.argv[1]} had started.')
-    print(f'Scanning port {sys.argv[2]} to {sys.argv[3]}')
-    print('| PROTOCOL | PORT | STATUS |')
-    #print('----------------------------')
     res = s.run()
-    res.sort(key=lambda x: x.port_no)
-    for port_info in res:
-        print('|{:10s}|{:6d}|{:>8s}|'.format(port_info.protocol, port_info.port_no, port_info.state))
+    show_result(res)
