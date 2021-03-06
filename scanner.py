@@ -8,7 +8,7 @@ class Scanner:
     def __init__(self, target, min_port, max_port, scan_mode='t'):
         self.target = target
         self.min_port = min_port
-        self.max_port = max_port + 1
+        self.max_port = max_port
 
         self.scan_mode = scan_mode
 
@@ -21,15 +21,19 @@ class Scanner:
             target = self.udp_scan
 
         threads = []
-        for port in range(self.min_port, self.max_port):
+        # 並列スキャン用スレッド生成
+        for port in range(self.min_port, self.max_port + 1):
             thread = threading.Thread(target=target, args=(port,))
             thread.start()
             threads.append(thread)
         while True:
-            if len(self.scan_result) == (self.max_port - self.min_port):
+            if len(self.scan_result) == (self.max_port - self.min_port + 1):
                 return self.scan_result
 
     def tcp_scan(self, port):
+        """
+        指定されたポートに対してスキャンを行う
+        """
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             res = s.connect_ex((self.target, port))
         if res == 0:
@@ -38,6 +42,9 @@ class Scanner:
             self.scan_result.append(PortInfo(port, 'TCP', 'DOWN'))
 
     def udp_scan(self, port):
+        """
+        UDPスキャン実装中
+        """
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
             res = s.connect_ex((self.target, port))
         if res == 0:
@@ -54,6 +61,9 @@ class PortInfo:
 
 
 def parse_arguments():
+    """
+    コマンドライン引数をパース
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument('target')
     parser.add_argument('-s', '--start', type=int, default=1)
@@ -66,6 +76,9 @@ def parse_arguments():
 
 
 def show_result(result, quiet_mode=False):
+    """
+    スキャン結果の表示
+    """
     print('| PROTOCOL | PORT | STATUS |')
     print('----------------------------')
     result.sort(key=lambda x: x.port_no)
@@ -81,6 +94,7 @@ def show_result(result, quiet_mode=False):
 
 if __name__ == '__main__':
     args = parse_arguments()
+    # スキャンモード判定
     if args.udp:
         scan_mode = 'u'
         print('UDP scan is not available now.')
@@ -88,7 +102,10 @@ if __name__ == '__main__':
     else:
         scan_mode = 't'
 
+    # スキャン開始
     s = Scanner(args.target, args.start, args.end, scan_mode)
     print(f'Port scan for {args.target} had started.')
     res = s.run()
+
+    # スキャン結果表示
     show_result(res, args.less)
