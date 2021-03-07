@@ -41,17 +41,6 @@ class Scanner:
         else:
             self.scan_result.append(PortInfo(port, 'TCP', 'DOWN'))
 
-    def udp_scan(self, port):
-        """
-        UDPスキャン実装中
-        """
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
-            res = s.connect_ex((self.target, port))
-        if res == 0:
-            self.scan_result.append(PortInfo(port, 'UDP', 'UP'))
-        else:
-            self.scan_result.append(PortInfo(port, 'UDP', 'DOWN'))
-
 
 class PortInfo:
     def __init__(self, port_no, protocol, state):
@@ -69,13 +58,13 @@ def parse_arguments():
     parser.add_argument('-s', '--start', type=int, default=1)
     parser.add_argument('-e', '--end', type=int, default=1000)
     parser.add_argument('-t', '--tcp', action='store_true')
-    parser.add_argument('-u', '--udp', action='store_true')
     parser.add_argument('-l', '--less', action='store_true')
+    parser.add_argument('-a', '--all', action='store_true')
     args = parser.parse_args()
     return args
 
 
-def show_result(result, quiet_mode=False):
+def show_result(result, detail_mode=False):
     """
     スキャン結果の表示
     """
@@ -88,19 +77,13 @@ def show_result(result, quiet_mode=False):
         else:
             color = '\033[31m'
 
-        if not (quiet_mode is True) or (port.state == 'UP'):
+        if detail_mode or (port.state == 'UP'):
             print('|{:^10s}|{:^6d}|{:^17s}|'.format(port.protocol, port.port_no, color + port.state + '\033[0m'))
 
 
 if __name__ == '__main__':
     args = parse_arguments()
-    # スキャンモード判定
-    if args.udp:
-        scan_mode = 'u'
-        print('UDP scan is not available now.')
-        sys.exit()
-    else:
-        scan_mode = 't'
+    scan_mode = 't'
 
     # スキャン開始
     s = Scanner(args.target, args.start, args.end, scan_mode)
@@ -108,4 +91,4 @@ if __name__ == '__main__':
     res = s.run()
 
     # スキャン結果表示
-    show_result(res, args.less)
+    show_result(res, args.all)
