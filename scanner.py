@@ -28,6 +28,7 @@ class Scanner:
             threads.append(thread)
         while True:
             if len(self.scan_result) == (self.max_port - self.min_port + 1):
+                self.scan_result.sort(key=lambda x: x.port_no)
                 return self.scan_result
 
     def tcp_scan(self, port):
@@ -70,7 +71,6 @@ def show_result(result, detail_mode=False):
     """
     print('| PROTOCOL | PORT | STATUS |')
     print('----------------------------')
-    result.sort(key=lambda x: x.port_no)
     for port in result:
         if port.state == 'UP':
             color = '\033[32m'
