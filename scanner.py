@@ -1,6 +1,5 @@
 import argparse
 import socket
-import sys
 import threading
 
 
