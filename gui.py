@@ -52,7 +52,8 @@ class Window:
 
     def show_data(self, result_list):
         for result in result_list:
-            self.table_result.insert("", "end", values=(result.protocol, result.port_no, result.state))
+            if result.state == "UP":
+                self.table_result.insert("", "end", values=(result.protocol, result.port_no, result.state))
 
 
 def run_scan():
