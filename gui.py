@@ -14,27 +14,27 @@ class Window:
 
         # First Row
         self.frame_1 = ttk.Frame(self.root)
-        self.frame_1.pack()
+        self.frame_1.pack(pady=5)
         self.label_target = ttk.Label(self.frame_1, text="Target")
-        self.label_target.pack(side=LEFT)
+        self.label_target.pack(padx=5, side=LEFT)
         self.entry_target = ttk.Entry(self.frame_1)
         self.entry_target.pack(side=LEFT)
 
         # Second Row
         self.frame_2 = ttk.Frame(self.root)
-        self.frame_2.pack()
-        self.label_start = ttk.Label(self.frame_2, text="Min Port")
-        self.label_start.pack(side=LEFT)
-        self.entry_start = ttk.Entry(self.frame_2)
+        self.frame_2.pack(pady=5)
+        self.label_start = ttk.Label(self.frame_1, text="Min Port")
+        self.label_start.pack(padx=5, side=LEFT)
+        self.entry_start = ttk.Entry(self.frame_1, width=5)
         self.entry_start.pack(side=LEFT)
-        self.label_end = ttk.Label(self.frame_2, text="Max Port")
-        self.label_end.pack(side=LEFT)
-        self.entry_end = ttk.Entry(self.frame_2)
+        self.label_end = ttk.Label(self.frame_1, text="Max Port")
+        self.label_end.pack(padx=5, side=LEFT)
+        self.entry_end = ttk.Entry(self.frame_1, width=5)
         self.entry_end.pack(side=LEFT)
 
         # Third Row
         self.frame_3 = ttk.Frame(self.root)
-        self.frame_3.pack()
+        self.frame_3.pack(pady=5)
         self.execute_button = ttk.Button(self.frame_3, text="Execute", command=run_scan)
         self.execute_button.pack(side=LEFT)
 
