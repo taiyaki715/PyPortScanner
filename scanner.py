@@ -58,7 +58,6 @@ def parse_arguments():
     parser.add_argument('-s', '--start', type=int, default=1)
     parser.add_argument('-e', '--end', type=int, default=1000)
     parser.add_argument('-t', '--tcp', action='store_true')
-    parser.add_argument('-l', '--less', action='store_true')
     parser.add_argument('-a', '--all', action='store_true')
     args = parser.parse_args()
     return args
